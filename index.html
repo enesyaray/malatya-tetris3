@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Oyunu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>MALATYA TETRIS</h1>
+            <p class="subtitle">Kayısı Diyarının Tetris Oyunu</p>
+            <div class="score-board">
+                <div class="score-item">
+                    <span>Skor:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <span>Seviye:</span>
+                    <span id="level">1</span>
+                </div>
+                <div class="score-item">
+                    <span>Satır:</span>
+                    <span id="lines">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+            
+            <div class="side-panel">
+                <div class="next-piece">
+                    <h3>Sıradaki Parça</h3>
+                    <canvas id="nextCanvas" width="120" height="120"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <h3>Kontroller</h3>
+                    <div class="control-item">
+                        <span>← →</span>
+                        <span>Hareket</span>
+                    </div>
+                    <div class="control-item">
+                        <span>↓</span>
+                        <span>Hızlı Düşür</span>
+                    </div>
+                    <div class="control-item">
+                        <span>↑</span>
+                        <span>Döndür</span>
+                    </div>
+                    <div class="control-item">
+                        <span>Space</span>
+                        <span>Anında Düşür</span>
+                    </div>
+                    <div class="control-item">
+                        <span>P</span>
+                        <span>Duraklat</span>
+                    </div>
+                    <div class="mobile-controls">
+                        <h4>📱 Mobil Kontroller</h4>
+                        <div class="control-item">
+                            <span>👆 Dokun</span>
+                            <span>Döndür</span>
+                        </div>
+                        <div class="control-item">
+                            <span>👈 👉 Kaydır</span>
+                            <span>Hareket</span>
+                        </div>
+                        <div class="control-item">
+                            <span>👇 Kaydır</span>
+                            <span>Hızlı Düşür</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="startBtn" class="start-btn">Oyunu Başlat</button>
+                <button id="pauseBtn" class="pause-btn" disabled>Duraklat</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2>Oyun Bitti!</h2>
+            <p>Final Skorunuz: <span id="finalScore">0</span></p>
+            <button id="restartBtn">Yeniden Başla</button>
+        </div>
+    </div>
+    
+    <!-- Malatya Türküsü (Arka Plan Müziği) -->
+    <audio id="malatyaMusic" loop>
+        <source src="gerekli materyaller/malatya turkusu.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Zılgıt Sesi (Ödül Sesi) -->
+    <audio id="zilgitSound">
+        <source src="gerekli materyaller/zılgıt sesi.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Blok Yerleşme Sesi -->
+    <audio id="blockPlaceSound">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    
+    <!-- Alternatif Blok Sesi -->
+    <audio id="blockPlaceSound2">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    
+    <!-- Seksi Erkek Sesi (Cümle Okuma) -->
+    <audio id="sexyVoiceSound">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    
+    <!-- Google Translate Sesli Okuma -->
+    <audio id="googleVoice1" preload="auto">
+        <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAUAAAiSAAYGBgYJCQkJCQwMDAwMDw8PDw8SEhISEhUVFRUVGBgYGBgbGxsbGx4eHh4eISEhISEkJCQkJCcnJycnKioqKiotLS0tLTAwMDAwMzMzMzM2NjY2Njk5OTk5PT09PT0//////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAYAAAAAAAAAIkj//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZB4P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+    </audio>
+    <audio id="googleVoice2" preload="auto">
+        <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAUAAAiSAAYGBgYJCQkJCQwMDAwMDw8PDw8SEhISEhUVFRUVGBgYGBgbGxsbGx4eHh4eISEhISEkJCQkJCcnJycnKioqKiotLS0tLTAwMDAwMzMzMzM2NjY2Njk5OTk5PT09PT0//////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAYAAAAAAAAAIkj//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZB4P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+    </audio>
+    
+    <!-- Müzik Kontrolleri -->
+    <div class="music-controls">
+        <button id="musicToggle" class="music-btn">🎵 Müzik Kapat</button>
+        <button id="musicVolume" class="music-btn">🔊</button>
+    </div>
+    
+    <!-- Yapımcı Bilgisi -->
+    <div class="creator-info">
+        <span>Yapımcı: Enes Yaray</span>
+    </div>
+    
+    <script src="tetris.js"></script>
+</body>
+</html> 
